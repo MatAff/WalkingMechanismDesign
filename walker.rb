@@ -1,4 +1,29 @@
 
+# load "C:\\Users\\Mathijs\\Documents\\Projects\\2018 Walker design\\WalkingMechanismDesign\\walker.rb"
+
+# Define useful global variables
+$xaxis = Geom::Vector3d.new 1,0,0
+$normVec = Geom::Vector3d.new(0,0,1)
+$center = Geom::Point3d.new(0, 0, 0)
+
+# Function to get adjacent points from vector 
+def GetAdjacentPts(pts, i)
+    res = []
+	if (i == 0) 
+	  res[0] = pts[pts.length-1]
+	else 
+      res[0]= pts[i-1]
+    end	
+	res[1] = pts[i]
+	if (i == pts.length-1) 
+        res[2]= pts[0]
+	else 
+		res[2] = pts[i+1]
+    end	
+	return res
+end
+
+# Function to compute point at a certain radius away from a point
 def add_outer_radius(p, outerRadius, angle)
   res = Geom::Point3d.new(p[0] + Math.cos(angle * Math::PI) * outerRadius, 
                           p[1] + Math.sin(angle * Math::PI) * outerRadius, 
@@ -6,6 +31,29 @@ def add_outer_radius(p, outerRadius, angle)
   return res
 end 
 
+# Function to determin the position of points of a triangle based on the length of the sides
+def triangle_point(sPoint, a, b, c)
+	pts = []
+    pts[0] = sPoint
+	pts[1] = Geom::Point3d.new(sPoint[0] + a, sPoint[1], sPoint[2])
+	a = a.to_f
+	b = b.to_f
+	c = c.to_f
+	dx = (b*b - c*c + a*a) / (2*a)
+	dy = Math.sqrt(b*b - dx*dx)
+    pts[2] = Geom::Point3d.new(sPoint[0] + dx, sPoint[1] + dy, sPoint[2])
+    return pts
+end
+
+# Function to determine the start and end position of a rod based on its length
+def create_rod(sPoint, a)
+  pts = []
+  pts[0] = sPoint
+  pts[1] = Geom::Point3d.new(sPoint[0] + a, sPoint[1], sPoint[2])
+  return pts
+end
+
+# Draw part based on a series of points (draws holes, curves on the corners, and connecting lines)
 def draw_part(pts)
 
 	# Draw holes
@@ -40,31 +88,9 @@ def draw_part(pts)
 	
 end
 
-def triangle_point(sPoint, a, b, c)
-	pts = []
-    pts[0] = sPoint
-	pts[1] = Geom::Point3d.new(sPoint[0] + a, sPoint[1], sPoint[2])
-	a = a.to_f
-	b = b.to_f
-	c = c.to_f
-	dx = (b*b - c*c + a*a) / (2*a)
-	dy = Math.sqrt(b*b - dx*dx)
-    pts[2] = Geom::Point3d.new(sPoint[0] + dx, sPoint[1] + dy, sPoint[2])
-    return pts
-end
-
-
-def create_rod(sPoint, a)
-  pts = []
-  pts[0] = sPoint
-  pts[1] = Geom::Point3d.new(sPoint[0] + a, sPoint[1], sPoint[2])
-  return pts
-end
-
 # Part specifications
 $holeRadius = mm(1)
 $outerRadius = mm(5)
-
 
 # Bottom triangle
 bottom = triangle_point($center, mm(65.7), mm(36.7), mm(49.0))
@@ -80,20 +106,3 @@ draw_part(create_rod(Geom::Point3d.new(0, mm(85), 0), mm(39.4)))
 draw_part(create_rod(Geom::Point3d.new(0, mm(100), 0), mm(39.3)))
 draw_part(create_rod(Geom::Point3d.new(0, mm(115), 0), mm(61.9)))
 draw_part(create_rod(Geom::Point3d.new(0, mm(130), 0), mm(50.0)))
-
-### TEST DATA BELOW ###
-
-# Create rectangle
-pts = []
-sx = 0 
-ex = 10
-sy = 0
-ey = 10
-sz = 0
-
-pts[0] = Geom::Point3d.new(sx, sy, sz)
-pts[1] = Geom::Point3d.new(ex, sy, sz)
-pts[2] = Geom::Point3d.new(ex, ey, sz)
-#pts[3] = Geom::Point3d.new(sx, ey, sz)
-
-
